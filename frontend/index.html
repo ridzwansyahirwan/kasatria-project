@@ -1,0 +1,130 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Kasatria Demo</title>
+
+    <!-- Google Client ID -->
+    <meta name="google-client-id" content="1043903183685-ct4djf37342n3fgp8mavn808ugp34he7.apps.googleusercontent.com">
+
+    <!-- Google Identity Services -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+    <!-- Main stylesheet -->
+    <link rel="stylesheet" href="/css/style.css">
+
+    <!-- Three.js dependencies -->
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+        }
+    }
+    </script>
+</head>
+
+<body>
+
+    <!-- LOGIN PAGE -->
+    <section id="login-page">
+
+        <div class="login-container">
+
+            <h1>Kasatria</h1>
+
+            <p>Welcome to the Kasatria Profile Explorer</p>
+
+            <p>Please sign in to continue.</p>
+
+            <div id="google-button"></div>
+
+            <p id="login-error"></p>
+
+        </div>
+
+    </section>
+
+
+    <!-- MAIN APPLICATION -->
+    <section id="main-app" style="display: none;">
+
+        <!-- HEADER -->
+        <header class="app-header">
+
+            <div class="header-left">
+                <h2>Kasatria Profile Explorer</h2>
+            </div>
+
+            <div class="header-right">
+
+                <div id="user-info">
+                    <!-- Logged-in user information -->
+                </div>
+
+                <button id="logout-button">
+                    Logout
+                </button>
+
+            </div>
+
+        </header>
+
+
+        <!-- LAYOUT CONTROLS -->
+        <nav class="layout-controls">
+
+            <button class="layout-button active" data-layout="table">
+                Table
+            </button>
+
+            <button class="layout-button" data-layout="sphere">
+                Sphere
+            </button>
+
+            <button class="layout-button" data-layout="helix">
+                Helix
+            </button>
+
+            <button class="layout-button" data-layout="grid">
+                Grid
+            </button>
+
+            <span class="layout-separator"></span>
+            
+            <button id="reset-view">Reset Position</button>
+
+            <div class="net-worth-legend">
+                <span class="legend-label">LOW</span>
+
+                <div class="legend-gradient"></div>
+
+                <span class="legend-label">HIGH</span>
+            </div>
+
+        </nav>
+
+
+        <!-- PROFILE VISUALIZATION -->
+        <main id="scene-container">
+
+            <div id="loading-message">
+                Loading profiles...
+            </div>
+
+        </main>
+
+    </section>
+
+
+    <!-- FRONTEND SCRIPTS -->
+    <script type="module" src="/js/three-scene.js"></script>
+    <script type="module" src="/js/auth.js"></script>
+
+</body>
+
+</html>
