@@ -38,7 +38,8 @@ const targets = {
     table: [],
     sphere: [],
     helix: [],
-    grid: []
+    grid: [],
+    tetrahedron: []
 };
 
 let currentLayout = "table";
@@ -358,6 +359,7 @@ async function loadProfiles() {
         createSphereTargets();
         createHelixTargets();
         createGridTargets();
+        createTetrahedronTargets();
 
         loading.style.display = "none";
 
@@ -542,6 +544,101 @@ function createGridTargets() {
     });
 
 }
+
+// =====================================
+// TETRAHEDRON LAYOUT
+// =====================================
+
+
+function buildRowLengths(count) {
+    let rows = 1;
+    while ((rows * (rows + 1)) / 2 < count) rows++;
+    const lengths = Array.from({ length: rows }, (_, i) => i + 1);
+    let missing = (rows * (rows + 1)) / 2 - count;
+    for (let i = rows - 1; missing > 0 && i >= 0; i--, missing--) lengths[i]--;
+    return lengths;
+}
+
+function createTetrahedronTargets() {
+    const totalCards = objects.length;
+
+    // Match your actual card size
+    const CARD_W = 120, CARD_H = 160, GAP = 20;
+
+    const perFace = Math.floor(totalCards / 4);
+    const extra = totalCards % 4;
+    const maxCount = perFace + (extra ? 1 : 0);
+    const rows = buildRowLengths(maxCount).length;
+
+    // Equilateral lattice: row spacing comes from card height
+    const S3 = Math.sqrt(3) / 2;
+    const pitchY = CARD_H + GAP;
+    const pitchX = pitchY / S3;
+
+    // Size the tetrahedron so each face is exactly covered by the grid
+    const faceH = (rows + 0.5) * pitchY;
+    const edge = faceH / S3;
+    const R = edge / Math.sqrt(8 / 3);        // apex distance from centre
+
+    // Tetrahedron standing on a flat bottom face, apex up
+    const baseY = -R / 3;
+    const baseR = edge / Math.sqrt(3);
+    const apex = new THREE.Vector3(0, R, 0);
+    const base = [0, 1, 2].map(i => {
+        const ang = (i * 2 * Math.PI) / 3;
+        return new THREE.Vector3(baseR * Math.cos(ang), baseY, baseR * Math.sin(ang));
+    });
+
+    const faces = [
+        [apex, base[0], base[1]],
+        [apex, base[1], base[2]],
+        [apex, base[2], base[0]],
+        [base[0], base[2], base[1]]            // bottom
+    ];
+
+    targets.tetrahedron.length = 0;
+
+    faces.forEach(([a, b, c], faceIndex) => {
+        const count = perFace + (faceIndex < extra ? 1 : 0);
+        if (count === 0) return;
+
+        const center = new THREE.Vector3().addVectors(a, b).add(c).divideScalar(3);
+
+        const normal = new THREE.Vector3()
+            .crossVectors(
+                new THREE.Vector3().subVectors(b, a),
+                new THREE.Vector3().subVectors(c, a)
+            ).normalize();
+        if (normal.dot(center) < 0) normal.negate();
+
+        const upDir = new THREE.Vector3().subVectors(a, center).normalize();
+        const rightDir = new THREE.Vector3().crossVectors(upDir, normal).normalize();
+
+        const rowLengths = buildRowLengths(count);
+
+        rowLengths.forEach((rowLen, row) => {
+            const d = (row + 0.75) * pitchY;   // distance down from the top corner
+            for (let col = 0; col < rowLen; col++) {
+                const x = (col - (rowLen - 1) / 2) * pitchX;
+
+                const position = a.clone()
+                    .addScaledVector(upDir, -d)
+                    .addScaledVector(rightDir, x)
+                    .addScaledVector(normal, 8);
+
+                const target = new THREE.Object3D();
+                target.position.copy(position);
+                target.up.copy(upDir);
+                target.lookAt(position.clone().add(normal));
+
+                targets.tetrahedron.push(target);
+            }
+        });
+    });
+
+    console.log("Tetrahedron targets:", targets.tetrahedron.length, "/", totalCards);
+}
+
 
 // =====================================
 // TRANSFORM BETWEEN LAYOUTS
