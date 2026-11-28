@@ -332,6 +332,7 @@ async function loadProfiles() {
         targets.sphere.length = 0;
         targets.helix.length = 0;
         targets.grid.length = 0;
+        targets.tetrahedron.length = 0;
 
 
         // Create profile tiles
